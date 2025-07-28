@@ -16,19 +16,17 @@ DATA_FILENAME = "kdata.bin"
 
 mcs_recording = openMCSH5File(MCS_H5_FILE, stream_id=2)
 
-
 # --- Create output directory if it doesn't exist ---
 OUTPUT_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
-# --- 2. Extract relevant metadata for Kilosort ---
 sampling_frequency = mcs_recording["sampling_frequency"]
 num_channels = mcs_recording["num_channels"]
 channel_ids = mcs_recording["channel_ids"]
-# You might need to verify the channel map and coordinates from the MCS data or provide a separate probe file.
-# SpikeInterface can help export probe info if available in the recording object.
+dtype = str(mcs_recording["raw_data"].dtype)
 
 print(f"Sampling Frequency: {sampling_frequency} Hz")
 print(f"Number of Channels: {num_channels}")
+print(f"dtype: {dtype}")
 
 recording = se.NumpyRecording(
     traces_list=[mcs_recording["raw_data"]],
@@ -36,19 +34,13 @@ recording = se.NumpyRecording(
 )
 
 
-# --- 3. Convert to Kilosort's binary format ---
-# This function handles reading the recording chunks and writing them to a binary file
-# with the correct data type and order.
-# The 'io.spikeinterface_to_binary' function also handles writing probe information
-# if it's available in the SpikeInterface RecordingExtractor.
-# It returns filename, N_samples, N_channels, sampling_frequency, probe_path
 try:
     filename_bin, N_samples, N_channels, N_segments, fs, probe_path = (
         io.spikeinterface_to_binary(
             recording,
             OUTPUT_DIRECTORY,
             data_name=DATA_FILENAME,
-            dtype=mcs_recording["raw_data"].dtype,
+            dtype=dtype,
             chunksize=60000,  # Adjust chunksize based on your system's RAM
             export_probe=True,  # Export probe info if available, as a .prb file
         )
@@ -63,15 +55,10 @@ try:
     print(f"  Probe file (if exported): {probe_path}")
 
     kilosort_settings = {
-        # Essential parameters for Kilosort4 to load data:
-        "filename": OUTPUT_DIRECTORY / DATA_FILENAME,  # Name of the binary data file
-        "n_chan_bin": N_channels,  # Number of channels in the binary file
+        "filename": OUTPUT_DIRECTORY / DATA_FILENAME,
+        "n_chan_bin": N_channels,
         "fs": fs,  # Sampling frequency
-        "probe_path": "",  # Path to the probe file relative to params.py
-        # Data types:
-        "dtype": str(
-            mcs_recording["raw_data"].dtype
-        ),  # Match the dtype of the binary file
+        "probe_path": "",
     }
     write_params(kilosort_settings, OUTPUT_DIRECTORY)
 
@@ -80,9 +67,15 @@ except Exception as e:
 
 
 # DEBUG only: test if kilosort can run
+probe_dict = io.load_probe("120MEA200probe.json")
+print("\n\nRunning kilosort...")
 ops, st, clu, tF, Wall, similar_templates, is_ref, est_contam_rate, kept_spikes = (
     run_kilosort(
-        settings=kilosort_settings, results_dir="results", verbose_console=True
+        settings=kilosort_settings,
+        data_dtype=dtype,
+        results_dir="results",
+        verbose_console=True,
+        probe=probe_dict,
     )
 )
 
