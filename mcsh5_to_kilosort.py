@@ -80,4 +80,4 @@ ops, st, clu, tF, Wall, similar_templates, is_ref, est_contam_rate, kept_spikes 
 )
 
 print("Kilosort4 sorting complete!")
-print(f"Results are typically saved in: {os.path.join(OUTPUT_DIRECTORY, 'kilosort4')}")
+print(f"Results are in 'results' or {os.path.join(OUTPUT_DIRECTORY, 'kilosort4')}")
