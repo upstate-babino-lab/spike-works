@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import json
 import os
 import sys
@@ -15,7 +16,7 @@ def classify(X, y):
         y,
         test_size=0.2,
         random_state=42,
-        stratify=y,  # stratify=y ensures train/test sets have similar class proportions
+        stratify=y,  # ensure train/test sets have similar class proportions
     )
 
     print(f"X_train shape: {X_train.shape}, y_train shape: {y_train.shape}")

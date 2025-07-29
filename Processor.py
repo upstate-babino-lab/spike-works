@@ -36,12 +36,12 @@ def generate_arrays(spike_file, synctones_file, stims_file):
     print(f"Stimulus durations: {min(stim_durations_ms)}ms - {max_duration_ms}ms")
 
     # Calculate time bins
-    time_bin_size_ms = 20
+    time_bin_size_ms = 10
     max_time_bins = int(np.ceil(max_duration_ms / time_bin_size_ms))
     bin_edges = np.linspace(0, (max_time_bins * time_bin_size_ms), max_time_bins + 1)
 
     print(f"{max_duration_ms=} {max_time_bins=}")
-    print(f"{bin_edges=}")
+    # print(f"{bin_edges=}")
 
     # Create stimulus intervals from synctones
     stim_intervals = []
@@ -104,9 +104,9 @@ def generate_arrays(spike_file, synctones_file, stims_file):
     # print(json.dumps(metadata, indent=4))
 
     # Save files
-    base_name = Path(spike_file).stem
-    array_file = f"{base_name}_4d.npz"
-    metadata_file = f"{base_name}_metadata.npz"
+    base_name = Path(spike_file).with_suffix("")
+    array_file = f"{base_name}_{time_bin_size_ms}_4d.npz"
+    metadata_file = f"{base_name}_{time_bin_size_ms}_metadata.npz"
 
     np.savez_compressed(array_file, array=spike_array)
     np.savez_compressed(metadata_file, **metadata)
