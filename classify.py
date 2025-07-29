@@ -4,6 +4,7 @@ import os
 import sys
 
 import numpy as np
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
@@ -14,7 +15,7 @@ def classify(X, y):
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
-        test_size=0.2,
+        test_size=0.75,
         random_state=42,
         stratify=y,  # ensure train/test sets have similar class proportions
     )
@@ -25,7 +26,7 @@ def classify(X, y):
     print(f"Test set class distribution (y): {np.unique(y_test, return_counts=True)}")
 
     model = SVC(kernel="linear", random_state=42)
-
+    # model = LogisticRegression(random_state=42)
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
@@ -33,7 +34,6 @@ def classify(X, y):
     accuracy = accuracy_score(y_test, y_pred)
     print(f"Accuracy on the test set: {accuracy:.4f}")
 
-    print("\nClassification Report:")
     print(classification_report(y_test, y_pred, target_names=["Class 0", "Class 1"]))
 
 
