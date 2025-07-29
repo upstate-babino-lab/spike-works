@@ -23,10 +23,11 @@ def classify(X, y):
     print(f"Train set class distribution (y): {np.unique(y_train, return_counts=True)}")
     print(f"Test set class distribution (y): {np.unique(y_test, return_counts=True)}")
 
-    svm_model = SVC(kernel="linear", random_state=42)
-    svm_model.fit(X_train, y_train)
+    model = SVC(kernel="linear", random_state=42)
 
-    y_pred = svm_model.predict(X_test)
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
 
     accuracy = accuracy_score(y_test, y_pred)
     print(f"Accuracy on the test set: {accuracy:.4f}")
